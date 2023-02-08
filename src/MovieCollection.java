@@ -2,18 +2,17 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class MovieCollection
 {
     private ArrayList<Movie> movies;
-    private ArrayList<String> castList;
     private Scanner scanner;
 
     public MovieCollection(String fileName)
     {
         importMovieList(fileName);
-        importCastList();
         scanner = new Scanner(System.in);
     }
 
@@ -166,7 +165,53 @@ public class MovieCollection
 
     private void searchCast()
     {
+        // adding all the cast members the name the user inputted to a list
+        System.out.print("Enter a cast member: ");
+        String castMember = scanner.nextLine().toLowerCase();
+        ArrayList<String> searchResults = new ArrayList<String>();
+        for (int i = 0; i < movies.size(); i++){
+            String[] movieCast = movies.get(i).getCast().split("[|]");
+            for (String actor : movieCast){
+                if (actor.toLowerCase().contains(castMember) && searchResults.contains(actor) == false){
+                    searchResults.add(actor);
+                }
+            }
+        }
 
+        // making sure the inputted cast member is valid
+        if (searchResults.size() > 0){
+
+            // remember to sort the results alphabetically!!!!
+            // printing the results of the search
+            for (int i = 0; i < searchResults.size(); i++){
+                System.out.println(i + 1 + ". " + searchResults.get(i));
+            }
+            System.out.println("Which cast member would you like to know more about?");
+            System.out.print("Enter Number: ");
+            String actorChoice = scanner.nextLine();
+            // check if the number is in range!!!
+            String selectedActor = searchResults.get(Integer.parseInt(actorChoice) - 1);
+
+            // adding all the movies the selectedActor appeared on to a list
+            ArrayList<Movie> movieList = new ArrayList<Movie>();
+            for (int i = 0; i < movies.size(); i++){
+                String movieCast = movies.get(i).getCast();
+                if (movieCast.indexOf(selectedActor) >= 0) movieList.add(movies.get(i));
+            }
+
+            // printing the movies the actor has been in
+            for (int i = 0; i < movieList.size(); i++){
+                System.out.println(i + 1 + ". " + movieList.get(i).getTitle());
+            }
+
+            System.out.println("Which movie would you like to know more about?");
+            System.out.print("Enter a number: ");
+            String movieChoice = scanner.nextLine();
+            displayMovieInfo(movieList.get(Integer.parseInt(movieChoice) - 1));
+        }
+        else{
+            System.out.println("There are no cast members with the name " + castMember);
+        }
     }
 
     private void searchKeywords()
@@ -271,16 +316,6 @@ public class MovieCollection
         {
             // Print out the exception that occurred
             System.out.println("Unable to access " + exception.getMessage());
-        }
-    }
-
-    private void importCastList(){
-        String[] currentMovieCast = new String[movies.get(0).getCast().length()];
-        for (int i = 0; i < movies.size(); i++){
-            currentMovieCast = movies.get(i).getCast().split("|");
-            for (int k = 0; i < currentMovieCast.length; i++){
-                if (!(castList.contains(currentMovieCast[k]))) castList.add(currentMovieCast[k]);
-            }
         }
     }
 
